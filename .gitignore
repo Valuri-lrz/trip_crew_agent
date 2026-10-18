@@ -17,6 +17,7 @@ build/
 # 虚拟环境
 venv/
 .venv/
+.venv*/
 env/
 
 # IDE
@@ -37,12 +38,16 @@ logs/
 # 数据
 data/history/
 data/cache/
+.data/
 *.sqlite3
 *.db
 
 # 上传
 uploads/
 temp/
+
+# Streamlit secrets
+.streamlit/secrets.toml
 
 # Jupyter
 .ipynb_checkpoints/

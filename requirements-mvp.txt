@@ -1,0 +1,14 @@
+# TravelCrew B 档（CrewAI + 多模态）最小依赖
+# Python 3.12/3.13
+crewai==1.15.28
+streamlit>=1.40,<2
+openai>=2.0,<3
+Pillow>=11
+python-dotenv>=1.0
+requests>=2.32
+
+# Optional: only needed if you want the Tavily SDK; the app also supports REST.
+tavily-python>=0.5
+
+# dev
+pytest>=8

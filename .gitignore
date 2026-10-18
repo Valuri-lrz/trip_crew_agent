@@ -1,0 +1,53 @@
+# 环境
+.env
+.env.local
+.env.production
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# 虚拟环境
+venv/
+.venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# 日志
+*.log
+logs/
+
+# 数据
+data/history/
+data/cache/
+*.sqlite3
+*.db
+
+# 上传
+uploads/
+temp/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# 缓存
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/

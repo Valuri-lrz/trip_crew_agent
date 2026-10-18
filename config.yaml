@@ -1,0 +1,41 @@
+llm:
+  provider: "deepseek"
+  base_url: "https://api.deepseek.com/v1"
+  model: "deepseek-v4-flash-vision-exp"
+  temperature: 0.7
+  max_tokens: 4096
+
+crew:
+  process: "sequential"
+  verbose: true
+  max_rpm: 60
+  memory: false
+
+negotiation:
+  max_rounds: 5
+  fairness_threshold: 0.75
+  compensation_enabled: true
+  shapley_method: "exact"
+
+emotion_weights:
+  excitement: 0.20
+  relaxation: 0.20
+  novelty: 0.20
+  social_fulfillment: 0.15
+  aesthetic_pleasure: 0.15
+  fatigue_penalty: 0.10
+
+scheduler:
+  weather_check_interval: 3600
+  fatigue_threshold: 0.7
+  max_adjustment_ratio: 0.3
+
+search:
+  provider: "tavily"
+  max_results: 5
+  search_depth: "advanced"
+
+output:
+  format: "json"
+  save_history: true
+  history_dir: "./data/history"

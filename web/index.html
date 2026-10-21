@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>去哪儿都行 · 旅行搭子</title>
+<style>
+  :root{
+    --bg:#f6f2ea; --card:#fffdf8; --ink:#24211d; --muted:#8b8378;
+    --line:#e8e0d4; --accent:#c05f3c; --accent-soft:#f6e4da;
+    --green:#46695a; --shadow:0 1px 2px rgba(60,48,36,.06),0 8px 24px rgba(60,48,36,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
+
+  header{
+    position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);
+    background:rgba(246,242,234,.86);border-bottom:1px solid var(--line);
+  }
+  .bar{display:flex;align-items:center;gap:10px;padding:14px 20px}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);flex:0 0 auto}
+  .title{font-weight:600;letter-spacing:.2px}
+  .spacer{flex:1}
+  .pill{
+    font-size:12px;color:var(--muted);border:1px solid var(--line);
+    padding:3px 9px;border-radius:999px;background:var(--card);
+  }
+  .pill.live{color:var(--green);border-color:#cfe0d6}
+  .reset{font-size:12px;color:var(--muted);cursor:pointer;background:none;border:0}
+  .reset:hover{color:var(--accent)}
+
+  main{flex:1;padding:22px 20px 8px;display:flex;flex-direction:column;gap:18px}
+
+  .msg{display:flex;gap:10px;animation:rise .35s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .msg.me{justify-content:flex-end}
+  .avatar{
+    width:26px;height:26px;border-radius:50%;flex:0 0 auto;margin-top:3px;
+    background:linear-gradient(140deg,#e8c9b6,#c05f3c);opacity:.9
+  }
+  .bubble{
+    max-width:88%;padding:11px 14px;border-radius:14px;background:var(--card);
+    box-shadow:var(--shadow);white-space:pre-wrap;word-break:break-word
+  }
+  .me .bubble{background:var(--accent);color:#fff;border-bottom-right-radius:4px}
+  .me .avatar{display:none}
+
+  .typing{display:flex;gap:4px;padding:14px 16px;align-items:center}
+  .wtxt{font-size:12.5px;color:var(--muted);margin-right:6px}
+  .caret{display:inline-block;width:2px;height:15px;background:var(--accent);
+         vertical-align:-2px;margin-left:2px;animation:blink 1s steps(1) infinite}
+  .typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);opacity:.5;animation:blink 1.2s infinite}
+  .typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:.9;transform:translateY(-2px)}}
+
+  /* 行程 = 攻略卡片 */
+  .itin{display:flex;flex-direction:column;gap:12px}
+  .day{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:12px 14px;box-shadow:var(--shadow)}
+  .dhead{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+  .dhead b{font-size:14px}
+  .wx{font-size:11.5px;color:var(--green);background:#eaf3ee;padding:2px 8px;border-radius:999px}
+  .mins{font-size:11.5px;color:var(--muted)}
+  .chev{margin-left:auto;color:var(--muted);font-size:11px;transition:transform .2s}
+  .day.collapsed .dbody{display:none}
+  .day.collapsed .chev{transform:rotate(-90deg)}
+  .dbody{margin-top:10px}
+
+  .item{display:flex;gap:11px;padding:11px 0;border-top:1px dashed var(--line);cursor:pointer}
+  .item:first-child{border-top:0;padding-top:2px}
+  .ph{width:92px;height:70px;border-radius:11px;object-fit:cover;background:var(--bg);flex:0 0 auto;display:block}
+  .meta{flex:1;min-width:0}
+  .slot{font-size:10.5px;color:var(--muted);letter-spacing:.5px}
+  .iname{font-weight:600;font-size:14.5px;margin-top:1px}
+  .iwhy{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .ihl{font-size:13px;margin-top:5px;color:#3d3830}
+  .ifacts{font-size:11.5px;color:var(--green);margin-top:4px}
+  .ifacts:empty{display:none}
+  .story{font-size:13.5px;line-height:1.75;color:#3d3830;background:var(--bg);
+         border-radius:11px;padding:11px 13px;margin-bottom:6px}
+  .itip{font-size:12px;color:var(--accent);margin-top:4px;display:none}
+  .item.open .itip{display:block}
+  .iact{display:flex;gap:8px;align-items:center;margin-top:7px}
+  .mini{border:1px solid var(--line);background:var(--bg);border-radius:8px;font-size:11.5px;
+        padding:3px 9px;cursor:pointer;color:var(--muted);font:inherit;font-size:11.5px}
+  .mini:hover{color:var(--accent);border-color:var(--accent)}
+  .dur{font-size:11.5px;color:var(--muted)}
+  .indoor{font-size:10.5px;color:var(--green);border:1px solid #cfe0d6;border-radius:6px;padding:0 5px;margin-left:6px;font-weight:400}
+  .note{font-size:12.5px;color:var(--muted);background:var(--bg);border-radius:10px;padding:8px 10px;margin-top:10px}
+  .sum{font-size:12.5px;color:var(--muted);padding:2px 2px 0;display:flex;gap:14px;flex-wrap:wrap}
+  .tail{font-size:12px;color:var(--muted);border-top:1px dashed var(--line);
+        margin-top:10px;padding-top:9px;text-align:center;opacity:.85}
+  .ledger{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:10px;background:#fff}
+  .lhead{font-size:12px;color:var(--muted);margin-bottom:6px}
+  .lrow{display:flex;gap:10px;align-items:baseline;font-size:12.5px;padding:3px 0}
+  .lname{color:var(--muted);width:52px;flex:0 0 auto}
+  .lc{color:var(--accent);font-weight:600}
+  .ld{color:var(--muted);font-size:11.5px}
+
+  footer{
+    position:sticky;bottom:0;padding:12px 20px calc(14px + env(safe-area-inset-bottom));
+    background:linear-gradient(to top,var(--bg) 70%,rgba(246,242,234,.6));
+  }
+  .composer{
+    display:flex;align-items:flex-end;gap:8px;background:var(--card);border:1px solid var(--line);
+    border-radius:18px;padding:8px 8px 8px 14px;box-shadow:var(--shadow);transition:border-color .2s
+  }
+  .composer:focus-within{border-color:#d9cbb9}
+  textarea{
+    flex:1;border:0;outline:0;resize:none;background:transparent;font:inherit;color:inherit;
+    max-height:120px;padding:6px 0;line-height:1.5
+  }
+  .icon{
+    width:36px;height:36px;border:0;border-radius:12px;background:var(--bg);color:var(--muted);
+    cursor:pointer;display:grid;place-items:center;flex:0 0 auto;transition:.15s
+  }
+  .icon:hover{color:var(--accent)}
+  .send{background:var(--accent);color:#fff}
+  .send:disabled{opacity:.45;cursor:default}
+  .thumbs{display:flex;gap:6px;padding:0 2px 8px;flex-wrap:wrap}
+  .thumb{position:relative;width:48px;height:48px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+  .thumb img{width:100%;height:100%;object-fit:cover}
+  .thumb button{position:absolute;top:2px;right:2px;width:16px;height:16px;border:0;border-radius:50%;
+    background:rgba(0,0,0,.5);color:#fff;font-size:11px;line-height:1;cursor:pointer}
+  .hint{font-size:11.5px;color:var(--muted);text-align:center;padding:8px 0 2px}
+
+  .drag-over{outline:2px dashed var(--accent);outline-offset:-10px;border-radius:16px}
+  .err{color:#a33;font-size:12.5px;padding:6px 2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="bar">
+      <span class="dot"></span>
+      <span class="title">去哪儿都行</span>
+      <span class="pill" id="mode">连接中</span>
+      <span class="spacer"></span>
+      <button class="reset" onclick="location.reload()">重开</button>
+    </div>
+  </header>
+
+  <main id="stream"></main>
+
+  <footer>
+    <div id="thumbs" class="thumbs"></div>
+    <div class="composer">
+      <textarea id="input" rows="1" placeholder="说一句就行，比如：我们两个五一去大理玩三天"></textarea>
+      <button class="icon" id="pick" title="加图片">＋</button>
+      <button class="icon send" id="send" title="发送">↑</button>
+    </div>
+    <div class="hint">不用点按钮，直接说。图片可以拖进来</div>
+    <input type="file" id="file" accept="image/*" multiple hidden />
+  </footer>
+</div>
+
+<script>
+const stream = document.getElementById('stream');
+const input  = document.getElementById('input');
+const sendBtn= document.getElementById('send');
+const pick   = document.getElementById('pick');
+const fileIn = document.getElementById('file');
+const thumbs = document.getElementById('thumbs');
+
+let sid = null, stage = 0, busy = false, pending = [], itinCity = '';
+
+const SLOT = {morning:'上午', afternoon:'下午', evening:'晚上'};
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+const bottom = () => window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'});
+
+function add(role, html){
+  const el = document.createElement('div');
+  el.className = 'msg ' + (role === 'me' ? 'me' : 'ai');
+  el.innerHTML = `<div class="avatar"></div><div class="bubble">${html}</div>`;
+  stream.appendChild(el); bottom(); return el;
+}
+const WAIT = ['在听你说…', '在想你要什么…', '在挑地方…', '在排时间…', '在核对细节…'];
+
+function typing(){
+  const el = document.createElement('div');
+  el.className = 'msg ai'; el.id = 'typing';
+  el.innerHTML = `<div class="avatar"></div><div class="bubble typing">
+    <span class="wtxt">${WAIT[0]}</span><i></i><i></i><i></i></div>`;
+  let i = 0;
+  const timer = setInterval(() => {
+    i = (i + 1) % WAIT.length;
+    const t = el.querySelector('.wtxt');
+    if (t) t.textContent = WAIT[i];
+  }, 2200);
+  const raw = el.remove.bind(el);
+  el.remove = () => { clearInterval(timer); raw(); };
+  stream.appendChild(el); bottom(); return el;
+}
+const stopTyping = () => document.getElementById('typing')?.remove();
+
+let itinEl = null;
+
+function itemHTML(day, x){
+  const city = encodeURIComponent(itinCity);
+  const q = encodeURIComponent(x.name);
+  return `
+    <div class="item" data-poi="${esc(x.poi_id)}" data-name="${esc(x.name)}"
+         data-city="${esc(itinCity)}" onclick="this.classList.toggle('open')">
+      <img class="ph" loading="lazy" alt="${esc(x.name)}"
+           src="/api/photo?q=${q}&city=${city}">
+      <div class="meta">
+        <div class="slot">${x.start_time ? `<b>${esc(x.start_time)}</b>` : (SLOT[x.slot] || x.slot)}${
+          x.travel_min ? ` · 路上 ${x.travel_min} 分钟` : ''}</div>
+        <div class="iname">${esc(x.name)}${x.indoor ? '<span class="indoor">室内</span>' : ''}</div>
+        <div class="iwhy">${esc(x.why || '')}</div>
+        <div class="ihl">${esc(x.highlight || '')}</div>
+        <div class="ifacts"></div>
+        <div class="itip">${esc(x.tip || '')}</div>
+        <div class="iact">
+          <button class="mini" onclick="event.stopPropagation();swapItem(${day},'${esc(x.poi_id)}')">换一个</button>
+          <span class="dur">${x.duration_min} 分钟${x.cost ? ' · ¥' + x.cost : ''}</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+// 事实是并行拉的，不占生成时间；查不到就留空，不编。
+async function hydrateFacts(root){
+  const nodes = [...root.querySelectorAll('.item[data-name]')];
+  await Promise.all(nodes.map(async el => {
+    try{
+      const url = `/api/facts?name=${encodeURIComponent(el.dataset.name)}&city=${encodeURIComponent(el.dataset.city || '')}`;
+      const f = await (await fetch(url)).json();
+      const bits = [
+        f.rating ? `评分 ${f.rating}` : '',
+        f.cost ? `人均 ¥${f.cost}` : '',
+        f.open_time ? `营业 ${f.open_time}` : '',
+        f.address || ''
+      ].filter(Boolean);
+      if (bits.length){
+        const box = el.querySelector('.ifacts');
+        if (box) box.textContent = bits.join(' · ');
+      }
+    }catch(e){}
+  }));
+}
+
+function renderItinerary(it, target){
+  itinCity = it.dest ? it.dest.name : itinCity;
+  const box = target || document.createElement('div');
+  box.className = 'itin';
+  const totalCost = (it.days || []).reduce((s, d) =>
+    s + (d.items || []).reduce((t, x) => t + (x.cost || 0), 0), 0);
+  const totalMin = (it.days || []).reduce((s, d) => s + (d.total_min || 0), 0);
+  box.innerHTML =
+    `<div class="sum"><span>${it.days.length} 天</span>
+      <span>约 ${Math.round(totalMin / 60)} 小时在路上和玩上</span>
+      <span>人均门票吃喝约 ¥${totalCost}</span></div>` +
+    (it.days || []).map(d => `
+      <div class="day">
+        <div class="dhead" onclick="this.parentNode.classList.toggle('collapsed')">
+          <b>第 ${d.day} 天</b>
+          ${d.weather ? `<span class="wx">${esc(d.weather)}</span>` : ''}
+          <span class="mins">${d.total_min || 0} 分钟</span>
+          <span class="chev">▾</span>
+        </div>
+        <div class="dbody">
+          ${d.story ? `<div class="story">${esc(d.story)}</div>` : ''}
+          ${(d.items || []).map(x => itemHTML(d.day, x)).join('') ||
+            '<div class="iwhy">这天先空着</div>'}
+          ${d.note ? `<div class="note">${esc(d.note)}</div>` : ''}
+        </div>
+      </div>`).join('') +
+    ((it.ledger || []).length ? `
+      <div class="ledger">
+        <div class="lhead">这本账 · 从 ${(it.ledger || []).length > 0 ? '多个取舍' : ''}里选了这一个</div>
+        ${it.ledger.map((r, n) => `
+          <div class="lrow">
+            <span class="lname">第 ${n + 1} 位</span>
+            <span class="lc">让了 ${(+r.concession || 0).toFixed(2)}</span>
+            <span class="ld">独自最好 ${(+r.best_alone || 0).toFixed(2)} → 实际 ${(+r.got || 0).toFixed(2)}</span>
+          </div>`).join('')}
+      </div>` : '') +
+    ((it.notes || []).length
+      ? `<div class="note">${it.notes.map(x => '· ' + esc(x)).join('<br>')}</div>` : '') +
+    `<div class="tail">具体信息（门票、营业时间、是否要预约）出发前还得自己核实一遍。</div>`;
+
+  if (!target) { stream.appendChild(box); itinEl = box; }
+  bottom();
+  hydrateFacts(box);
+}
+
+async function swapItem(day, poiId){
+  if (busy) return;
+  busy = true;
+  try{
+    const r = await api('/api/swap', {session_id: sid, day, poi_id: poiId});
+    if (r.itinerary) renderItinerary(r.itinerary, itinEl);
+    if (r.text) add('ai', fmt(r.text));
+  }catch(e){
+    add('ai', `<span class="err">${esc(e.message)}</span>`);
+  }finally{ busy = false; }
+}
+
+let polishing = false;
+
+// 行程先秒出，文案后台补：用户不用盯着转圈等九条攻略写完
+async function queuePolish(){
+  if (polishing) return;
+  polishing = true;
+  const hint = add('ai', '<span class="wtxt">行程先给你，我在把每条写成能照着走的攻略…</span>');
+  try{
+    const r = await api('/api/polish', {session_id: sid});
+    if (r.itinerary) renderItinerary(r.itinerary, itinEl);
+  }catch(e){}
+  finally{ hint.remove(); polishing = false; }
+}
+
+function renderReply(r){
+  stage = r.stage ?? stage;
+  if (r.text) add('ai', fmt(r.text));
+  if (r.itinerary) renderItinerary(r.itinerary);
+  if (r.itinerary && r.stage === 2) queuePolish();
+  document.getElementById('mode').textContent = r.mode === 'llm' ? 'AI 在线' : '演示模式';
+  document.getElementById('mode').classList.toggle('live', r.mode === 'llm');
+}
+
+async function api(path, body){
+  const res = await fetch(path, {
+    method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error((await res.text()).slice(0, 160));
+  return res.json();
+}
+
+async function boot(){
+  try{
+    const r = await api('/api/session', {});
+    sid = r.session_id; stage = r.stage;
+    add('ai', esc(r.text));
+    document.getElementById('mode').textContent = r.mode === 'llm' ? 'AI 在线' : '演示模式';
+    document.getElementById('mode').classList.toggle('live', r.mode === 'llm');
+  }catch(e){
+    const cmd = '<code>py -3.13 -m uvicorn travel.main:app --port 8765</code>';
+    if (location.protocol === 'file:'){
+      add('ai', '你是直接双击打开的网页，这样连不上后台。<br><br>' +
+        '先起服务，再打开 <b>http://127.0.0.1:8765</b>：<br>' + cmd);
+    }else{
+      add('ai', '连不上后台（' + esc(e.message) + '）。<br><br>' +
+        '确认服务在跑，然后在浏览器打开 <b>http://127.0.0.1:8765</b>：<br>' + cmd);
+    }
+  }
+}
+
+async function send(){
+  const text = input.value.trim();
+  if (busy || (!text && !pending.length)) return;
+  busy = true; sendBtn.disabled = true;
+
+  const shown = text || '（看这几张图）';
+  add('me', esc(shown) + (pending.length ? `<div class="thumbs" style="padding:6px 0 0">${
+    pending.map(p=>`<div class="thumb"><img src="/img?p=${encodeURIComponent(p)}"></div>`).join('')
+  }</div>` : ''));
+
+  input.value = ''; input.style.height = 'auto';
+  const imgs = pending.slice(); pending = []; renderThumbs();
+  const t = typing();
+
+  try{
+    const res = await fetch('/api/stream', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({session_id: sid, text: text || '看看这些图', images: imgs})
+    });
+    if (!res.ok) throw new Error((await res.text()).slice(0, 160));
+
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '', bubble = null;
+
+    while (true){
+      const {done, value} = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, {stream:true});
+      const parts = buf.split('\n\n');
+      buf = parts.pop();
+      for (const part of parts){
+        const line = part.trim();
+        if (!line.startsWith('data:')) continue;
+        let evt;
+        try { evt = JSON.parse(line.slice(5).trim()); } catch(e){ continue; }
+
+        if (evt.type === 'meta'){
+          t.remove();
+          stage = evt.stage ?? stage;
+          if (evt.itinerary) renderItinerary(evt.itinerary);
+          if (evt.itinerary && evt.stage === 2) queuePolish();
+          if (evt.mode) setMode(evt.mode);
+          bubble = add('ai', '<span class="caret"></span>');
+          bubble._txt = '';
+        } else if (evt.type === 'delta' && bubble){
+          bubble._txt += evt.text;
+          bubble.innerHTML = fmt(bubble._txt) + '<span class="caret"></span>';
+          bottom();
+        } else if (evt.type === 'done' && bubble){
+          bubble.innerHTML = fmt(bubble._txt || '');
+        }
+      }
+    }
+  }catch(e){
+    t.remove(); add('ai', `<span class="err">出错了：${esc(e.message)}</span>`);
+  }finally{
+    busy = false; sendBtn.disabled = false; input.focus();
+  }
+}
+
+function setMode(mode){
+  const el = document.getElementById('mode');
+  el.textContent = mode === 'llm' ? 'AI 在线' : '演示模式';
+  el.classList.toggle('live', mode === 'llm');
+}
+
+function renderThumbs(){
+  thumbs.innerHTML = '';
+  pending.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = 'thumb';
+    d.innerHTML = `<img src="/img?p=${encodeURIComponent(p)}"><button>×</button>`;
+    d.querySelector('button').onclick = () => { pending.splice(i,1); renderThumbs(); };
+    thumbs.appendChild(d);
+  });
+}
+
+async function upload(files){
+  if (!files.length) return;
+  const fd = new FormData();
+  [...files].slice(0,3).forEach(f => fd.append('files', f));
+  const res = await fetch('/api/upload', {method:'POST', body: fd});
+  if (!res.ok) return;
+  const data = await res.json();
+  pending = pending.concat(data.paths || []).slice(0,3);
+  renderThumbs();
+}
+
+sendBtn.onclick = send;
+pick.onclick = () => fileIn.click();
+fileIn.onchange = e => { upload(e.target.files); fileIn.value = ''; };
+
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); send(); }
+});
+input.addEventListener('input', () => {
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+});
+
+['dragenter','dragover'].forEach(k => document.addEventListener(k, e => {
+  e.preventDefault(); document.body.classList.add('drag-over');
+}));
+['dragleave','drop'].forEach(k => document.addEventListener(k, e => {
+  e.preventDefault(); document.body.classList.remove('drag-over');
+}));
+document.addEventListener('drop', e => upload(e.dataTransfer.files));
+
+boot();
+</script>
+</body>
+</html>
